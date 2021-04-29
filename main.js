@@ -1,8 +1,15 @@
 let config = {
 	width: 256, 
 	height: 272,
+	backgroundColor: 0x0000,
+	pixelArt: true,
 	 type: Phaser.AUTO,
-	  parent: "gameContainer",
+	 physics: {
+		 default: "arcade",
+		 arcade: {
+			debug: false
+		 }
+	 }
 	}
 
 	let game = new Phaser.Game(config);
