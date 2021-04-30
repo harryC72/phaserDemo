@@ -25,29 +25,44 @@ demo.scene2.prototype = {
 		this.input.on("gameobjectdown", this.destroyShip, this);
 
 		this.powerUps = this.physics.add.group();
-		
+		this.physics.world.setBoundsCollision();
 
 		let maxObjects = 4;
 
 		for(let i = 0; i < maxObjects; i++){
 			var powerUp = this.physics.add.sprite(16, 16, "power-up");
 			this.powerUps.add(powerUp);
+			powerUp.setRandomPosition(0, 0, game.config.width, game.config.height);
+
 			if(Math.random() > 0.5){
 				powerUp.play("red")
 			}else{
 				powerUp.play("gray")
 			}
 			powerUp.setCollideWorldBounds(true);
-			powerUp.setVelocity(100, 100);
+			powerUp.setVelocity(gameSettings.powerUpVel, gameSettings.powerUpVel);
+			powerUp.setBounce(1);
 			
-			powerUp.setRandomPosition(0, 0, game.config.width, game.config.height);
 		}
 
 		this.player = this.physics.add.sprite(config.width / 2 - 8,  config.height - 64, "player");
 		this.player.play("thrust");
 
 		this.cursorKeys = this.input.keyboard.createCursorKeys();
-		
+		this.player.setCollideWorldBounds(true);
+
+		this.projectiles = this.add.group();
+
+		this.physics.add.collider(this.projectiles, this.powerUps, function(projectile, powerUp){
+			projectile.destroy();
+		});
+
+		this.physics.add.overlap(this.player, this.powerUps, this.pickPowerUp, null, this);
+
+		this.enemies = this.physics.add.group();
+		this.enemies.add(this.ship1);
+		this.enemies.add(this.ship2);
+		this.enemies.add(this.ship3);
 
 
 		this.add.text(20, 20, "Playing game", {font: "25px Arial", fill: "yellow"})
@@ -61,10 +76,36 @@ demo.scene2.prototype = {
 
 		this.movePlayerManager(); 
 
-	},
+		this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
+		if (Phaser.Input.Keyboard.JustDown(this.spacebar)){
+			this.shootBeam();
+		} 
+
+		for(var i = 0; i < this.projectiles.getChildren().length; i++){
+			var beam = this.projectiles.getChildren()[i];
+			beam.update();
+		  }
+
+	},
 	movePlayerManager(){
-		
+		if(this.cursorKeys.left.isDown){
+			this.player.setVelocityX(-gameSettings.playerSpeed);
+		}else if(this.cursorKeys.right.isDown){
+			this.player.setVelocityX(gameSettings.playerSpeed);
+		}else{
+			this.player.setVelocityX(0);
+		}
+
+		if(this.cursorKeys.up.isDown){
+			this.player.setVelocityY(-gameSettings.playerSpeed);
+		}else if(this.cursorKeys.down.isDown){
+			this.player.setVelocityY(gameSettings.playerSpeed);
+		}else{
+			this.player.setVelocityY(0);
+		}
+
+		   
 	},
 
 	moveShip: function(ship, speed){
@@ -81,5 +122,11 @@ demo.scene2.prototype = {
 	destroyShip(pointer, gameObject){
 		gameObject.setTexture("explosion");
 		gameObject.play("explode");
+	},
+	shootBeam(){
+		let beam = new Beam(this);
+	},
+	pickPowerUp(player, powerUp){
+		powerUp.disableBody(true, true);
 	}
 }

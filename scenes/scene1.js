@@ -24,6 +24,11 @@ demo.scene1.prototype = {
 		{frameWidth: 16, frameHeight:16});
 		this.load.spritesheet("player", "../assets/spritesheets/player.png",
 		{frameWidth: 16, frameHeight:24});
+		this.load.spritesheet("beam", "../assets/spritesheets/beam.png",
+		{
+			frameWidth: 16,
+			frameHeight: 16
+		})
 	},
 	create: function(){
 		this.add.text(20, 20, "Loading game");
@@ -88,6 +93,13 @@ demo.scene1.prototype = {
 		this.anims.create({
 			key: "thrust",
 			frames: this.anims.generateFrameNumbers("player"),
+			frameRate: 20,
+			repeat: -1
+		});
+
+		this.anims.create({
+			key: "beam_anim",
+			frames: this.anims.generateFrameNumbers("beam"),
 			frameRate: 20,
 			repeat: -1
 		})
