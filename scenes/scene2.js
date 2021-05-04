@@ -14,6 +14,11 @@ demo.scene2.prototype = {
 		this.ship2 = this.add.sprite(config.width/2, config.height/2, 'ship2');
 		this.ship3 = this.add.sprite(config.width/2 + 50, config.height/2, "ship3");
 
+		this.enemies = this.physics.add.group();
+		this.enemies.add(this.ship1);
+		this.enemies.add(this.ship2);
+		this.enemies.add(this.ship3);
+
 		this.ship1.play("ship1_anim");
 		this.ship2.play("ship2_anim");
 		this.ship3.play("ship3_anim");
@@ -58,14 +63,10 @@ demo.scene2.prototype = {
 		});
 
 		this.physics.add.overlap(this.player, this.powerUps, this.pickPowerUp, null, this);
+		this.physics.add.overlap(this.player, this.enemies, this.hurtPlayer, null, this);
+		this.physics.add.overlap(this.projectiles, this.enemies, this.hitEnemy, null, this);
 
-		this.enemies = this.physics.add.group();
-		this.enemies.add(this.ship1);
-		this.enemies.add(this.ship2);
-		this.enemies.add(this.ship3);
-
-
-		this.add.text(20, 20, "Playing game", {font: "25px Arial", fill: "yellow"})
+		// this.add.text(20, 20, "Playing game", {font: "25px Arial", fill: "yellow"})
 	},
 	update: function(){
 		this.moveShip(this.ship1, 1);
@@ -128,5 +129,14 @@ demo.scene2.prototype = {
 	},
 	pickPowerUp(player, powerUp){
 		powerUp.disableBody(true, true);
+	},
+	hurtPlayer(player, enemy){
+		this.resetShipPos(enemy);
+		player.x = config.width / 2 - 8;
+		player.y = config.weight - 64;
+	},
+	hitEnemy(projectile, enemy){
+		projectile.destroy();
+		this.resetShipPos(enemy);
 	}
 }
